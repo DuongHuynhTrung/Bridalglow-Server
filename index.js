@@ -54,18 +54,18 @@ db.connect();
 // Định nghĩa các routes
 const userRouter = require("./src/routes/UserRouter");
 const authRouter = require("./src/routes/AuthRouter");
-const notificationRouter = require("./src/routes/NotificationRouter");
 const transactionRouter = require("./src/routes/TransactionRouter");
 const payOsRouter = require("./src/routes/PayOsRouter");
+const blogRouter = require("./src/routes/BlogRouter");
 
 app.use(express.static(path.resolve(__dirname, "public")));
 
 // Đăng ký routers
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
-app.use("/api/notifications", notificationRouter);
 app.use("/api/payOs", payOsRouter);
 app.use("/api/transactions", transactionRouter);
+app.use("/api/blogs", blogRouter);
 
 // Xử lý lỗi
 app.use(errorHandler);

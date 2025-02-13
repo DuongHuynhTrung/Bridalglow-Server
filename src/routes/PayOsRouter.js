@@ -2,17 +2,15 @@ const express = require("express");
 const payOsRouter = express.Router();
 
 const {
-  createAddFundsPayOsUrl,
-  createUpMembershipPayOsUrl,
+  createBuyServicesPayOsUrl,
   payOsCallBack,
 } = require("../app/controllers/PayOsController");
 const { validateToken } = require("../app/middleware/validateTokenHandler");
 
-payOsRouter.post("/create_add_funds", validateToken, createAddFundsPayOsUrl);
 payOsRouter.post(
-  "/create_up_membership/:membership",
+  "/create-buy-services",
   validateToken,
-  createUpMembershipPayOsUrl
+  createBuyServicesPayOsUrl
 );
 payOsRouter.post("/callback", payOsCallBack);
 

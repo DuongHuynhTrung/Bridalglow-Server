@@ -8,7 +8,7 @@ const transactionSchema = mongoose.Schema(
       required: true,
     },
     service_id: {
-      type: String,
+      type: [String],
     },
     payment_method: {
       type: String,

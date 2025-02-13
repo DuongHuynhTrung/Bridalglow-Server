@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const UserMembershipEnum = require("../../enum/UserMembershipEnum");
 
 const userSchema = mongoose.Schema(
   {
@@ -26,14 +25,6 @@ const userSchema = mongoose.Schema(
     },
     avatar_url: {
       type: String,
-    },
-    membership: {
-      type: String,
-      default: UserMembershipEnum.NORMAL,
-    },
-    account_balance: {
-      type: Number,
-      default: 0,
     },
     role: {
       type: String,
