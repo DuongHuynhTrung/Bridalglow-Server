@@ -57,6 +57,7 @@ const authRouter = require("./src/routes/AuthRouter");
 const transactionRouter = require("./src/routes/TransactionRouter");
 const payOsRouter = require("./src/routes/PayOsRouter");
 const blogRouter = require("./src/routes/BlogRouter");
+const statisticRouter = require("./src/routes/StatisticRouter");
 
 app.use(express.static(path.resolve(__dirname, "public")));
 
@@ -66,6 +67,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/payOs", payOsRouter);
 app.use("/api/transactions", transactionRouter);
 app.use("/api/blogs", blogRouter);
+app.use("/api/statistics", statisticRouter);
 
 // Xử lý lỗi
 app.use(errorHandler);
