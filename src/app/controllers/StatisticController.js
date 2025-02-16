@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Transaction = require("../models/Transaction");
 const User = require("../models/User");
+const RoleEnum = require("../../enum/RoleEnum");
 
 const statisticSales = asyncHandler(async (req, res) => {
   try {
@@ -42,10 +43,12 @@ const statisticSales = asyncHandler(async (req, res) => {
 
     const totalNewCustomerCurrent = await User.find({
       createdAt: { $gte: startOfPeriod, $lte: endOfPeriod },
+      role: RoleEnum.CUSTOMER,
     });
 
     const totalNewCustomerPrevious = await User.find({
       createdAt: { $gte: startOfPreviousPeriod, $lte: endOfPreviousPeriod },
+      role: RoleEnum.CUSTOMER,
     });
 
     const newCustomerDifferencePercent =
@@ -59,10 +62,12 @@ const statisticSales = asyncHandler(async (req, res) => {
 
     const totalNewArtistCurrent = await User.find({
       createdAt: { $gte: startOfPeriod, $lte: endOfPeriod },
+      role: RoleEnum.ARTIST,
     });
 
     const totalNewArtistPrevious = await User.find({
       createdAt: { $gte: startOfPreviousPeriod, $lte: endOfPreviousPeriod },
+      role: RoleEnum.ARTIST,
     });
 
     const newArtistDifferencePercent =
@@ -102,7 +107,8 @@ const statisticForMonthly = asyncHandler(async (req, res) => {
   try {
     let countTransactions = Array(12).fill(0);
     let totalAmount = Array(12).fill(0);
-    let countUsers = Array(12).fill(0);
+    let countCustomers = Array(12).fill(0);
+    let countArtists = Array(12).fill(0);
 
     const year = req.params.year;
 
@@ -125,13 +131,33 @@ const statisticForMonthly = asyncHandler(async (req, res) => {
       { $sort: { "_id.month": 1 } },
     ]);
 
-    const users = await User.aggregate([
+    const customers = await User.aggregate([
       {
         $match: {
           createdAt: {
             $gte: new Date(`${year}-01-01`),
             $lt: new Date(`${year + 1}-01-01`),
           },
+          role: RoleEnum.CUSTOMER,
+        },
+      },
+      {
+        $group: {
+          _id: { month: { $month: "$createdAt" } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { "_id.month": 1 } },
+    ]);
+
+    const artists = await User.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(`${year}-01-01`),
+            $lt: new Date(`${year + 1}-01-01`),
+          },
+          role: RoleEnum.ARTIST,
         },
       },
       {
@@ -149,15 +175,21 @@ const statisticForMonthly = asyncHandler(async (req, res) => {
       totalAmount[monthIndex] = item.totalAmount;
     });
 
-    users.forEach((item) => {
+    customers.forEach((item) => {
       const monthIndex = item._id.month - 1;
-      countUsers[monthIndex] = item.count;
+      countCustomers[monthIndex] = item.count;
+    });
+
+    artists.forEach((item) => {
+      const monthIndex = item._id.month - 1;
+      countArtists[monthIndex] = item.count;
     });
 
     res.status(200).json({
       countTransactions,
       totalAmount,
-      countUsers,
+      countCustomers,
+      countArtists,
     });
   } catch (error) {
     res
