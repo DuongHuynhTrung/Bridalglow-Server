@@ -40,20 +40,37 @@ const statisticSales = asyncHandler(async (req, res) => {
         ? 100
         : 0;
 
-    const totalNewUserCurrent = await User.find({
+    const totalNewCustomerCurrent = await User.find({
       createdAt: { $gte: startOfPeriod, $lte: endOfPeriod },
     });
 
-    const totalNewUserPrevious = await User.find({
+    const totalNewCustomerPrevious = await User.find({
       createdAt: { $gte: startOfPreviousPeriod, $lte: endOfPreviousPeriod },
     });
 
-    const newUserDifferencePercent =
-      totalNewUserPrevious.length !== 0
-        ? ((totalNewUserCurrent.length - totalNewUserPrevious.length) /
-            totalNewUserPrevious.length) *
+    const newCustomerDifferencePercent =
+      totalNewCustomerPrevious.length !== 0
+        ? ((totalNewCustomerCurrent.length - totalNewCustomerPrevious.length) /
+            totalNewCustomerPrevious.length) *
           100
-        : totalNewUserCurrent.length !== 0
+        : totalNewCustomerCurrent.length !== 0
+        ? 100
+        : 0;
+
+    const totalNewArtistCurrent = await User.find({
+      createdAt: { $gte: startOfPeriod, $lte: endOfPeriod },
+    });
+
+    const totalNewArtistPrevious = await User.find({
+      createdAt: { $gte: startOfPreviousPeriod, $lte: endOfPreviousPeriod },
+    });
+
+    const newArtistDifferencePercent =
+      totalNewArtistPrevious.length !== 0
+        ? ((totalNewArtistCurrent.length - totalNewArtistPrevious.length) /
+            totalNewArtistPrevious.length) *
+          100
+        : totalNewArtistCurrent.length !== 0
         ? 100
         : 0;
 
@@ -63,10 +80,15 @@ const statisticSales = asyncHandler(async (req, res) => {
         totalIncomePrevious,
         differencePercent: incomeDifferencePercent,
       },
-      newUsers: {
-        totalNewUsersCurrent: totalNewUserCurrent.length,
-        totalNewUsersPrevious: totalNewUserPrevious.length,
-        differencePercent: newUserDifferencePercent,
+      newCustomerDifferencePercent: {
+        totalNewCustomerCurrent: totalNewCustomerCurrent.length,
+        totalNewCustomerPrevious: totalNewCustomerPrevious.length,
+        differencePercent: newCustomerDifferencePercent,
+      },
+      newArtistDifferencePercent: {
+        totalNewArtistCurrent: totalNewArtistCurrent.length,
+        totalNewArtistPrevious: totalNewArtistPrevious.length,
+        differencePercent: newArtistDifferencePercent,
       },
     });
   } catch (error) {

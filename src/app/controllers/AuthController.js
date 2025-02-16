@@ -10,7 +10,7 @@ const { jwtDecode } = require("jwt-decode");
 //@access public
 const registerUser = asyncHandler(async (req, res, next) => {
   try {
-    const { email, password, fullname, phone_number } = req.body;
+    const { email, password, fullname, phone_number, role } = req.body;
     if (email === undefined || password === undefined) {
       res.status(400);
       throw new Error("All field not be empty!");
@@ -28,7 +28,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
       password: hashedPassword,
       fullname,
       phone_number,
-      role: RoleEnum.CUSTOMER,
+      role: role || RoleEnum.CUSTOMER,
     });
 
     if (!user) {

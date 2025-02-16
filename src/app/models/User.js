@@ -29,6 +29,21 @@ const userSchema = mongoose.Schema(
     role: {
       type: String,
     },
+    description: {
+      type: String,
+    },
+    achivements: {
+      type: String,
+    },
+    fanpage: {
+      type: String,
+    },
+    experience: {
+      type: String,
+    },
+    makeup_img_list: {
+      type: [String],
+    },
     status: {
       type: Boolean,
       default: true,

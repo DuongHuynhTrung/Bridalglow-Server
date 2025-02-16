@@ -14,14 +14,40 @@ const getUsers = asyncHandler(async (req, res, next) => {
     if (req.user.roleName !== RoleEnum.ADMIN) {
       res.status(403);
       throw new Error(
-        "Chỉ có Admin có quyền truy xuất thông tin tất cả tài khoản"
+        "Chỉ có Admin có quyền truy xuất thông tin tất cả tài khoản khách hàng"
       );
     }
     let users = await User.find({ role: RoleEnum.CUSTOMER }).exec();
     if (!users) {
       res.status(400);
       throw new Error(
-        "Có lỗi xảy ra khi Admin truy xuất thông tin tất cả tài khoản"
+        "Có lỗi xảy ra khi Admin truy xuất thông tin tất cả tài khoản khách hàng"
+      );
+    }
+    res.status(200).json(users);
+  } catch (error) {
+    res
+      .status(res.statusCode || 500)
+      .send(error.message || "Internal Server Error");
+  }
+});
+
+//@desc Get all users
+//@route GET /api/users
+//@access private
+const getArtists = asyncHandler(async (req, res, next) => {
+  try {
+    if (req.user.roleName !== RoleEnum.ADMIN) {
+      res.status(403);
+      throw new Error(
+        "Chỉ có Admin có quyền truy xuất thông tin tất cả tài khoản thợ trang điểm"
+      );
+    }
+    let users = await User.find({ role: RoleEnum.ARTIST }).exec();
+    if (!users) {
+      res.status(400);
+      throw new Error(
+        "Có lỗi xảy ra khi Admin truy xuất thông tin tất cả tài khoản thợ trang điểm"
       );
     }
     res.status(200).json(users);
@@ -623,6 +649,7 @@ const upMembershipByAccountBalance = asyncHandler(async (req, res) => {
 
 module.exports = {
   getUsers,
+  getArtists,
   getUserById,
   updateUsers,
   deleteUsers,

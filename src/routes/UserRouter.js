@@ -19,6 +19,7 @@ const {
   forgotPassword,
   resetPassword,
   upMembershipByAccountBalance,
+  getArtists,
 } = require("../app/controllers/UserController");
 const {
   validateToken,
@@ -228,6 +229,8 @@ userRouter.route("/admin/:id").put(validateTokenAdmin, updateUserInfoForAdmin);
  *         description: User not found
  */
 userRouter.route("/").get(getUsers).put(updateUsers);
+
+userRouter.get("/artists", getArtists);
 
 /**
  * @swagger

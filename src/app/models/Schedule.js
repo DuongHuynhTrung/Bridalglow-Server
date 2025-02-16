@@ -1,25 +1,7 @@
 const mongoose = require("mongoose");
 
-const tempTransactionSchema = mongoose.Schema(
+const scheduleSchema = mongoose.Schema(
   {
-    type: {
-      type: String,
-    },
-
-    // Temp Transaction
-    orderCode: {
-      type: Number,
-      required: true,
-    },
-    user_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
-    service_id: {
-      type: [String],
-    },
-
-    // Temp Schedule
     customer_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -42,10 +24,14 @@ const tempTransactionSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    service_id: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("TempTransaction", tempTransactionSchema);
+module.exports = mongoose.model("Schedule", scheduleSchema);
