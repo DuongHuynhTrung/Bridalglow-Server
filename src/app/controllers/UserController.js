@@ -37,12 +37,6 @@ const getUsers = asyncHandler(async (req, res, next) => {
 //@access private
 const getArtists = asyncHandler(async (req, res, next) => {
   try {
-    if (req.user.roleName !== RoleEnum.ADMIN) {
-      res.status(403);
-      throw new Error(
-        "Chỉ có Admin có quyền truy xuất thông tin tất cả tài khoản thợ trang điểm"
-      );
-    }
     let users = await User.find({ role: RoleEnum.ARTIST }).exec();
     if (!users) {
       res.status(400);
@@ -115,13 +109,43 @@ const updateUsers = asyncHandler(async (req, res, next) => {
       throw new Error("You don't have permission to update user's profile");
     }
 
-    const { fullname, avatar_url, dob, country, gender } = req.body;
+    const {
+      fullname,
+      avatar_url,
+      dob,
+      phone_number,
+      gender,
+      description,
+      achivements,
+      fanpage,
+      experience,
+      makeup_img_list,
+    } = req.body;
+    if (user.phone_number && phone_number != undefined) {
+      const checkExistPhone = await User.findOne({
+        phone_number: phone_number,
+      });
+      if (
+        checkExistPhone &&
+        checkExistPhone._id.toString() !== req.user.id.toString()
+      ) {
+        res.status(400);
+        throw new Error("Số điện thoại đã tồn tại!");
+      }
+    }
     const updateFields = {
       fullname: fullname !== undefined ? fullname : user.fullname,
       avatar_url: avatar_url !== undefined ? avatar_url : user.avatar_url,
       dob: dob !== undefined ? dob : user.dob,
-      country: country !== undefined ? country : user.country,
       gender: gender !== undefined ? gender : user.gender,
+      phone_number:
+        phone_number !== undefined ? phone_number : user.phone_number,
+      description: description !== undefined ? description : user.description,
+      achivements: achivements !== undefined ? achivements : user.achivements,
+      fanpage: fanpage !== undefined ? fanpage : user.fanpage,
+      experience: experience !== undefined ? experience : user.experience,
+      makeup_img_list:
+        makeup_img_list !== undefined ? makeup_img_list : user.makeup_img_list,
     };
 
     const updateUser = await User.findByIdAndUpdate(req.user.id, updateFields, {
