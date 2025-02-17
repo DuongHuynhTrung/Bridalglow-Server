@@ -115,6 +115,12 @@ const {
  */
 userRouter.route("/delete-no-auth/:id").delete(deleteUsersNoAuth);
 
+userRouter.get("/artists", getArtists);
+
+userRouter.post("/forgotPassword/:email", forgotPassword);
+
+userRouter.post("/resetPassword", resetPassword);
+
 userRouter.use(validateToken);
 
 /**
@@ -229,8 +235,6 @@ userRouter.route("/admin/:id").put(validateTokenAdmin, updateUserInfoForAdmin);
  *         description: User not found
  */
 userRouter.route("/").get(getUsers).put(updateUsers);
-
-userRouter.get("/artists", getArtists);
 
 /**
  * @swagger
@@ -471,10 +475,6 @@ userRouter
 userRouter
   .route("/unBanAccountByAdmin/:account_id")
   .patch(validateTokenAdmin, unBanAccountByAdmin);
-
-userRouter.post("/forgotPassword/:email", forgotPassword);
-
-userRouter.post("/resetPassword", resetPassword);
 
 userRouter.post("/upMembershipByAccountBalance", upMembershipByAccountBalance);
 
