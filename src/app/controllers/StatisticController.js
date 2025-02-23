@@ -198,7 +198,114 @@ const statisticForMonthly = asyncHandler(async (req, res) => {
   }
 });
 
+const statisticSalesForMonth = asyncHandler(async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Lấy đầu và cuối tháng hiện tại
+    let startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    let endOfCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    endOfCurrentMonth.setHours(23, 59, 59, 999);
+
+    // Lấy đầu và cuối tháng trước
+    let startOfPreviousMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      1
+    );
+    let endOfPreviousMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+    endOfPreviousMonth.setHours(23, 59, 59, 999);
+
+    const totalTransactionCurrent = await Transaction.find({
+      createdAt: { $gte: startOfCurrentMonth, $lte: endOfCurrentMonth },
+    });
+    let totalIncomeCurrent = 0;
+    totalTransactionCurrent.forEach(
+      (transaction) => (totalIncomeCurrent += transaction.amount)
+    );
+
+    const totalTransactionPrevious = await Transaction.find({
+      createdAt: { $gte: startOfPreviousMonth, $lte: endOfPreviousMonth },
+    });
+    let totalIncomePrevious = 0;
+    totalTransactionPrevious.forEach(
+      (transaction) => (totalIncomePrevious += transaction.amount)
+    );
+
+    const incomeDifferencePercent =
+      totalIncomePrevious !== 0
+        ? ((totalIncomeCurrent - totalIncomePrevious) / totalIncomePrevious) *
+          100
+        : totalIncomeCurrent !== 0
+        ? 100
+        : 0;
+
+    // Customer
+    const totalNewCustomerCurrent = await User.find({
+      createdAt: { $gte: startOfCurrentMonth, $lte: endOfCurrentMonth },
+      role: RoleEnum.CUSTOMER,
+    });
+
+    const totalNewCustomerPrevious = await User.find({
+      createdAt: { $gte: startOfPreviousMonth, $lte: endOfPreviousMonth },
+      role: RoleEnum.CUSTOMER,
+    });
+
+    const newCustomerDifferencePercent =
+      totalNewCustomerPrevious.length !== 0
+        ? ((totalNewCustomerCurrent.length - totalNewCustomerPrevious.length) /
+            totalNewCustomerPrevious.length) *
+          100
+        : totalNewCustomerCurrent.length !== 0
+        ? 100
+        : 0;
+
+    // Artist
+    const totalNewArtistCurrent = await User.find({
+      createdAt: { $gte: startOfCurrentMonth, $lte: endOfCurrentMonth },
+      role: RoleEnum.ARTIST,
+    });
+
+    const totalNewArtistPrevious = await User.find({
+      createdAt: { $gte: startOfPreviousMonth, $lte: endOfPreviousMonth },
+      role: RoleEnum.ARTIST,
+    });
+
+    const newArtistDifferencePercent =
+      totalNewArtistPrevious.length !== 0
+        ? ((totalNewArtistCurrent.length - totalNewArtistPrevious.length) /
+            totalNewArtistPrevious.length) *
+          100
+        : totalNewArtistCurrent.length !== 0
+        ? 100
+        : 0;
+
+    res.status(200).json({
+      income: {
+        totalIncomeCurrent,
+        totalIncomePrevious,
+        differencePercent: incomeDifferencePercent,
+      },
+      newCustomers: {
+        totalNewCustomerCurrent: totalNewCustomerCurrent.length,
+        totalNewCustomerPrevious: totalNewCustomerPrevious.length,
+        differencePercent: newCustomerDifferencePercent,
+      },
+      newArtists: {
+        totalNewArtistCurrent: totalNewArtistCurrent.length,
+        totalNewArtistPrevious: totalNewArtistPrevious.length,
+        differencePercent: newArtistDifferencePercent,
+      },
+    });
+  } catch (error) {
+    res
+      .status(res.statusCode || 500)
+      .send(error.message || "Internal Server Error");
+  }
+});
+
 module.exports = {
   statisticSales,
+  statisticSalesForMonth,
   statisticForMonthly,
 };

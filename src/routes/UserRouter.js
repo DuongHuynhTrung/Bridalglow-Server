@@ -20,6 +20,7 @@ const {
   resetPassword,
   upMembershipByAccountBalance,
   getArtists,
+  upRoleArtistByAdmin,
 } = require("../app/controllers/UserController");
 const {
   validateToken,
@@ -477,5 +478,9 @@ userRouter
   .patch(validateTokenAdmin, unBanAccountByAdmin);
 
 userRouter.post("/upMembershipByAccountBalance", upMembershipByAccountBalance);
+
+userRouter
+  .route("/up-artist/:user_id")
+  .put(validateTokenAdmin, upRoleArtistByAdmin);
 
 module.exports = userRouter;

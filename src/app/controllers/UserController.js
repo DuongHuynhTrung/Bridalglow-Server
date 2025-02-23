@@ -671,6 +671,25 @@ const upMembershipByAccountBalance = asyncHandler(async (req, res) => {
   }
 });
 
+//@desc Get user
+//@route GET /api/users/:id
+//@access private
+const upRoleArtistByAdmin = asyncHandler(async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.user_id).exec();
+    if (!user) {
+      res.status(404);
+      throw new Error("User Not Found!");
+    }
+    user.role = RoleEnum.ARTIST;
+    await user.save();
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(res.statusCode).send(error.message || "Internal Server Error");
+  }
+});
+
 module.exports = {
   getUsers,
   getArtists,
@@ -689,4 +708,5 @@ module.exports = {
   forgotPassword,
   resetPassword,
   upMembershipByAccountBalance,
+  upRoleArtistByAdmin,
 };
