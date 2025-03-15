@@ -20,26 +20,20 @@ const statisticSales = asyncHandler(async (req, res) => {
     const totalTransactionCurrent = await Transaction.find({
       createdAt: { $gte: startOfPeriod, $lte: endOfPeriod },
     });
-    let totalIncomeCurrent = 0;
-    totalTransactionCurrent.forEach(
-      (transaction) => (totalIncomeCurrent += transaction.amount)
+    let totalIncomeCurrent = totalTransactionCurrent.reduce(
+      (sum, transaction) => sum + transaction.amount,
+      0
     );
 
     const totalTransactionPrevious = await Transaction.find({
       createdAt: { $gte: startOfPreviousPeriod, $lte: endOfPreviousPeriod },
     });
-    let totalIncomePrevious = 0;
-    totalTransactionPrevious.forEach(
-      (transaction) => (totalIncomePrevious += transaction.amount)
+    let totalIncomePrevious = totalTransactionPrevious.reduce(
+      (sum, transaction) => sum + transaction.amount,
+      0
     );
 
-    const incomeDifferencePercent =
-      totalIncomePrevious !== 0
-        ? ((totalIncomeCurrent - totalIncomePrevious) / totalIncomePrevious) *
-          100
-        : totalIncomeCurrent !== 0
-        ? 100
-        : 0;
+    const incomeDifference = totalIncomeCurrent - totalIncomePrevious;
 
     const totalNewCustomerCurrent = await User.find({
       createdAt: { $gte: startOfPeriod, $lte: endOfPeriod },
@@ -51,14 +45,8 @@ const statisticSales = asyncHandler(async (req, res) => {
       role: RoleEnum.CUSTOMER,
     });
 
-    const newCustomerDifferencePercent =
-      totalNewCustomerPrevious.length !== 0
-        ? ((totalNewCustomerCurrent.length - totalNewCustomerPrevious.length) /
-            totalNewCustomerPrevious.length) *
-          100
-        : totalNewCustomerCurrent.length !== 0
-        ? 100
-        : 0;
+    const newCustomerDifference =
+      totalNewCustomerCurrent.length - totalNewCustomerPrevious.length;
 
     const totalNewArtistCurrent = await User.find({
       createdAt: { $gte: startOfPeriod, $lte: endOfPeriod },
@@ -70,36 +58,28 @@ const statisticSales = asyncHandler(async (req, res) => {
       role: RoleEnum.ARTIST,
     });
 
-    const newArtistDifferencePercent =
-      totalNewArtistPrevious.length !== 0
-        ? ((totalNewArtistCurrent.length - totalNewArtistPrevious.length) /
-            totalNewArtistPrevious.length) *
-          100
-        : totalNewArtistCurrent.length !== 0
-        ? 100
-        : 0;
+    const newArtistDifference =
+      totalNewArtistCurrent.length - totalNewArtistPrevious.length;
 
     res.status(200).json({
       income: {
         totalIncomeCurrent,
         totalIncomePrevious,
-        differencePercent: incomeDifferencePercent,
+        difference: incomeDifference,
       },
-      newCustomerDifferencePercent: {
+      newCustomers: {
         totalNewCustomerCurrent: totalNewCustomerCurrent.length,
         totalNewCustomerPrevious: totalNewCustomerPrevious.length,
-        differencePercent: newCustomerDifferencePercent,
+        difference: newCustomerDifference,
       },
-      newArtistDifferencePercent: {
+      newArtists: {
         totalNewArtistCurrent: totalNewArtistCurrent.length,
         totalNewArtistPrevious: totalNewArtistPrevious.length,
-        differencePercent: newArtistDifferencePercent,
+        difference: newArtistDifference,
       },
     });
   } catch (error) {
-    res
-      .status(res.statusCode || 500)
-      .send(error.message || "Internal Server Error");
+    res.status(500).send(error.message || "Internal Server Error");
   }
 });
 
@@ -202,12 +182,10 @@ const statisticSalesForMonth = asyncHandler(async (req, res) => {
   try {
     const now = new Date();
 
-    // Lấy đầu và cuối tháng hiện tại
     let startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     let endOfCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     endOfCurrentMonth.setHours(23, 59, 59, 999);
 
-    // Lấy đầu và cuối tháng trước
     let startOfPreviousMonth = new Date(
       now.getFullYear(),
       now.getMonth() - 1,
@@ -219,28 +197,21 @@ const statisticSalesForMonth = asyncHandler(async (req, res) => {
     const totalTransactionCurrent = await Transaction.find({
       createdAt: { $gte: startOfCurrentMonth, $lte: endOfCurrentMonth },
     });
-    let totalIncomeCurrent = 0;
-    totalTransactionCurrent.forEach(
-      (transaction) => (totalIncomeCurrent += transaction.amount)
+    let totalIncomeCurrent = totalTransactionCurrent.reduce(
+      (sum, transaction) => sum + transaction.amount,
+      0
     );
 
     const totalTransactionPrevious = await Transaction.find({
       createdAt: { $gte: startOfPreviousMonth, $lte: endOfPreviousMonth },
     });
-    let totalIncomePrevious = 0;
-    totalTransactionPrevious.forEach(
-      (transaction) => (totalIncomePrevious += transaction.amount)
+    let totalIncomePrevious = totalTransactionPrevious.reduce(
+      (sum, transaction) => sum + transaction.amount,
+      0
     );
 
-    const incomeDifferencePercent =
-      totalIncomePrevious !== 0
-        ? ((totalIncomeCurrent - totalIncomePrevious) / totalIncomePrevious) *
-          100
-        : totalIncomeCurrent !== 0
-        ? 100
-        : 0;
+    const incomeDifference = totalIncomeCurrent - totalIncomePrevious;
 
-    // Customer
     const totalNewCustomerCurrent = await User.find({
       createdAt: { $gte: startOfCurrentMonth, $lte: endOfCurrentMonth },
       role: RoleEnum.CUSTOMER,
@@ -251,16 +222,9 @@ const statisticSalesForMonth = asyncHandler(async (req, res) => {
       role: RoleEnum.CUSTOMER,
     });
 
-    const newCustomerDifferencePercent =
-      totalNewCustomerPrevious.length !== 0
-        ? ((totalNewCustomerCurrent.length - totalNewCustomerPrevious.length) /
-            totalNewCustomerPrevious.length) *
-          100
-        : totalNewCustomerCurrent.length !== 0
-        ? 100
-        : 0;
+    const newCustomerDifference =
+      totalNewCustomerCurrent.length - totalNewCustomerPrevious.length;
 
-    // Artist
     const totalNewArtistCurrent = await User.find({
       createdAt: { $gte: startOfCurrentMonth, $lte: endOfCurrentMonth },
       role: RoleEnum.ARTIST,
@@ -271,36 +235,28 @@ const statisticSalesForMonth = asyncHandler(async (req, res) => {
       role: RoleEnum.ARTIST,
     });
 
-    const newArtistDifferencePercent =
-      totalNewArtistPrevious.length !== 0
-        ? ((totalNewArtistCurrent.length - totalNewArtistPrevious.length) /
-            totalNewArtistPrevious.length) *
-          100
-        : totalNewArtistCurrent.length !== 0
-        ? 100
-        : 0;
+    const newArtistDifference =
+      totalNewArtistCurrent.length - totalNewArtistPrevious.length;
 
     res.status(200).json({
       income: {
         totalIncomeCurrent,
         totalIncomePrevious,
-        differencePercent: incomeDifferencePercent,
+        difference: incomeDifference,
       },
       newCustomers: {
         totalNewCustomerCurrent: totalNewCustomerCurrent.length,
         totalNewCustomerPrevious: totalNewCustomerPrevious.length,
-        differencePercent: newCustomerDifferencePercent,
+        difference: newCustomerDifference,
       },
       newArtists: {
         totalNewArtistCurrent: totalNewArtistCurrent.length,
         totalNewArtistPrevious: totalNewArtistPrevious.length,
-        differencePercent: newArtistDifferencePercent,
+        difference: newArtistDifference,
       },
     });
   } catch (error) {
-    res
-      .status(res.statusCode || 500)
-      .send(error.message || "Internal Server Error");
+    res.status(500).send(error.message || "Internal Server Error");
   }
 });
 
