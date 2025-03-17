@@ -260,8 +260,28 @@ const statisticSalesForMonth = asyncHandler(async (req, res) => {
   }
 });
 
+const statisticUsers = asyncHandler(async (req, res) => {
+  try {
+    const totalCustomer = await User.countDocuments({
+      role: RoleEnum.CUSTOMER,
+      status: true,
+    });
+    const totalArtist = await User.countDocuments({
+      role: RoleEnum.ARTIST,
+      status: true,
+    });
+    res.status(200).json({
+      totalCustomer,
+      totalArtist,
+    });
+  } catch (error) {
+    res.status(500).send(error.message || "Internal Server Error");
+  }
+});
+
 module.exports = {
   statisticSales,
   statisticSalesForMonth,
   statisticForMonthly,
+  statisticUsers,
 };

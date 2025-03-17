@@ -8,8 +8,10 @@ const {
   statisticSales,
   statisticForMonthly,
   statisticSalesForMonth,
+  statisticUsers,
 } = require("../app/controllers/StatisticController");
 
+statisticRouter.get("/users", validateTokenAdmin, statisticUsers);
 statisticRouter.get("/sales", validateTokenAdmin, statisticSales);
 statisticRouter.get("/sales/month", validateTokenAdmin, statisticSalesForMonth);
 statisticRouter.get("/monthly/:year", validateTokenAdmin, statisticForMonthly);
